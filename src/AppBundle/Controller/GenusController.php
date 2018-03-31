@@ -48,29 +48,38 @@ class GenusController extends Controller
   }
 
   /**
-   * @Route("/genus/{genusName}")
+   * @Route("/genus/{genusName}", name="genus_show")
    */
   public function showAction($genusName)
   {
-    $notes = [
-      'Octopus asked me a riddle, outsmarted me',
-      'I counted 8 legs... as they wrapped around me',
-      'Inked!'
-    ];
 
-    $funFact = 'Octopuses can change the color of their body in just *three-tenths* of a second!';
+    $em = $this->getDoctrine()->getManager();
+    $genus = $em->getRepository('AppBundle:Genus')
+      ->findOneBy(['name'=>$genusName]);
 
-    $cache = $this->get('doctrine_cache.providers.my_markdown_cache');
-    $key = md5($funFact);
-    if ($cache->contains($key)) {
-      $funFact = $cache->fetch($key);
-    } else {
-      sleep(1); // fake how slow this could be
-      $funFact = $this->get('markdown.parser')->transform($funFact);
-      $cache->save($key, $funFact);
+    if (!$genus) {
+      throw $this->createNotFoundException('No genus found.');
     }
 
-    return $this->render('genus/show.html.twig', ['name' => $genusName, 'notes' => $notes, 'funFact' => $funFact]);
+//    $notes = [
+//      'Octopus asked me a riddle, outsmarted me',
+//      'I counted 8 legs... as they wrapped around me',
+//      'Inked!'
+//    ];
+//
+//    $funFact = 'Octopuses can change the color of their body in just *three-tenths* of a second!';
+//
+//    $cache = $this->get('doctrine_cache.providers.my_markdown_cache');
+//    $key = md5($funFact);
+//    if ($cache->contains($key)) {
+//      $funFact = $cache->fetch($key);
+//    } else {
+//      sleep(1); // fake how slow this could be
+//      $funFact = $this->get('markdown.parser')->transform($funFact);
+//      $cache->save($key, $funFact);
+//    }
+
+    return $this->render('genus/show.html.twig', ['genus' => $genus,]);
   }
 
   /**
